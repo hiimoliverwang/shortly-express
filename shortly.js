@@ -2,7 +2,13 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
-
+var crypto = require('crypto');
+var sha1 = require('sha1');
+//////////
+var session = require('express-session');
+var cookieParser = require('cookie-parser');
+ 
+/////////
 
 var db = require('./app/config');
 var Users = require('./app/collections/users');
@@ -12,6 +18,12 @@ var Link = require('./app/models/link');
 var Click = require('./app/models/click');
 
 var app = express();
+
+///
+app.use(bodyParser());
+app.use(cookieParser('shhhh, very secret'));
+app.use(session());
+///
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
@@ -23,24 +35,24 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
-app.get('/', 
+app.get('/', util.checkuser,
 function(req, res) {
   res.render('index');
 });
 
-app.get('/create', 
+app.get('/signup', 
 function(req, res) {
   res.render('signup');
 });
 
 app.post('/signup', function (req, res){
-    //behavior and shit
     console.log(req.body.username)
     console.log(req.body.password)
     Users.create({
       username:req.body.username,
       password:req.body.password
     })
+    res.redirect('/login');
     // new User().fetchAll().then(function(user){
     //   console.log(user);
     // })
@@ -76,7 +88,6 @@ function(req, res) {
           return res.send(404);
         }
         //if logged in , then this is okay, else you gun needa log in 
-        // something like " if you wanna create a link then you gun needa step the fuck up"
         //redirect to login 
         Links.create({
           url: uri,
@@ -98,20 +109,16 @@ function(req, res) {
 
 //write our own /login
 app.post('/login', function (req, res){
-  var encrypt = util.encrypt(req.body.password)
-  console.log(encrypt);
-  util.login(req, res, req.body.username, encryp);
+  util.login(req, res, req.body.username, sha1(req.body.password));
 });
 
 app.get('/login', function (req, res){
-  res.render('login')
+  res.render('login');
 })
 
 app.get('/amazeballs', function (req, res){
   util.checkuser(res);
 });
-
-
 
 /************************************************************/
 // Handle the wildcard route last - if all other routes fail
