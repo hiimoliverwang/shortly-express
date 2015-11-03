@@ -30,7 +30,20 @@ function(req, res) {
 
 app.get('/create', 
 function(req, res) {
-  res.render('index');
+  res.render('signup');
+});
+
+app.post('/signup', function (req, res){
+    //behavior and shit
+    console.log(req.body.username)
+    console.log(req.body.password)
+    Users.create({
+      username:req.body.username,
+      password:req.body.password
+    })
+    // new User().fetchAll().then(function(user){
+    //   console.log(user);
+    // })
 });
 
 app.get('/links', 
@@ -85,7 +98,9 @@ function(req, res) {
 
 //write our own /login
 app.post('/login', function (req, res){
-  console.log(req.body)
+  var encrypt = util.encrypt(req.body.password)
+  console.log(encrypt);
+  util.login(req, res, req.body.username, encryp);
 });
 
 app.get('/login', function (req, res){
@@ -95,6 +110,8 @@ app.get('/login', function (req, res){
 app.get('/amazeballs', function (req, res){
   util.checkuser(res);
 });
+
+
 
 /************************************************************/
 // Handle the wildcard route last - if all other routes fail
