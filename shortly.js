@@ -35,6 +35,7 @@ function(req, res) {
 
 app.get('/links', 
 function(req, res) {
+  //check login
   Links.reset().fetch().then(function(links) {
     res.send(200, links.models);
   });
@@ -43,7 +44,7 @@ function(req, res) {
 app.post('/links', 
 function(req, res) {
   var uri = req.body.url;
-
+  console.log('uri', uri);
   if (!util.isValidUrl(uri)) {
     console.log('Not a valid url: ', uri);
     return res.send(404);
@@ -51,20 +52,26 @@ function(req, res) {
 
   new Link({ url: uri }).fetch().then(function(found) {
     if (found) {
+      //no need to login 
+      //console.log('54.found.attr', found.attributes);
       res.send(200, found.attributes);
     } else {
       util.getUrlTitle(uri, function(err, title) {
+        //console.log('58.title', title);
         if (err) {
           console.log('Error reading URL heading: ', err);
           return res.send(404);
         }
-
+        //if logged in , then this is okay, else you gun needa log in 
+        // something like " if you wanna create a link then you gun needa step the fuck up"
+        //redirect to login 
         Links.create({
           url: uri,
           title: title,
           base_url: req.headers.origin
         })
         .then(function(newLink) {
+          //console.log('70.newLink', newLink);
           res.send(200, newLink);
         });
       });
@@ -76,13 +83,28 @@ function(req, res) {
 // Write your authentication routes here
 /************************************************************/
 
+//write our own /login
+app.post('/login', function (req, res){
+  console.log(req.body)
+});
 
+app.get('/login', function (req, res){
+  res.render('login')
+})
+
+app.get('/amazeballs', function (req, res){
+  util.checkuser(res);
+});
 
 /************************************************************/
 // Handle the wildcard route last - if all other routes fail
 // assume the route is a short code and try and handle it here.
 // If the short-code doesn't exist, send the user to '/'
 /************************************************************/
+
+// app.get('/debug?port=5858', function (req, res){
+//   res.send(200);
+// })
 
 app.get('/*', function(req, res) {
   new Link({ code: req.params[0] }).fetch().then(function(link) {
