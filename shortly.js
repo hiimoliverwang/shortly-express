@@ -33,6 +33,7 @@ app.use(bodyParser.json());
 // Parse forms (signup/login)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
+grant = new Grant(require('./config.json'))
 
 
 app.get('/', util.checkuser,
@@ -43,6 +44,11 @@ function(req, res) {
 app.get('/signup', 
 function(req, res) {
   res.render('signup');
+});
+
+app.get('/github', function (req, res){
+  console.log('hi')
+  res.redirect('GET https://github.com/login/oauth/authorize?redirect_uri=localhost:4568&state=lalalala')
 });
 
 app.post('/signup', function (req, res){
@@ -116,8 +122,10 @@ app.get('/login', function (req, res){
   res.render('login');
 })
 
-app.get('/amazeballs', function (req, res){
-  util.checkuser(res);
+app.get('/logout', function (req, res){
+    req.session.destroy(function(){
+        res.redirect('/login');
+    });
 });
 
 /************************************************************/

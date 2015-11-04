@@ -1,0 +1,15 @@
+{
+  "server": {
+    "protocol": "http",
+    "host": "localhost:4568"
+  },
+  "facebook": {
+    "key": "a426e3e75a0a40023da9",
+    "secret": "0294f15c4b2a897bf7c35d0d39e1734f75172ec0",
+    "scope": [
+      "repo",
+      "gist"
+    ],
+    "state": "lalalalalala"
+  }
+}
